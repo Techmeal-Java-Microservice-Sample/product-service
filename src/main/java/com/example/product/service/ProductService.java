@@ -7,8 +7,9 @@ import com.example.product.dto.ProductDto;
 public interface ProductService {
 	
 	List<ProductDto> getAllProducts();
-	List<ProductDto> getProductsByName(String productName);
-	
+	ProductDto getProductByName(String productName);
 	ProductDto getProductById(Long productId);
 	ProductDto createProduct(ProductDto productDto);
+	ProductDto updateProduct(ProductDto productDto);
+	void deleteProduct(String productName);
 }

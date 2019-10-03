@@ -1,6 +1,7 @@
 package com.example.product.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.example.product.dto.ProductDto;
 import com.example.product.entity.Product;
 import com.example.product.exception.AlreadyExistException;
+import com.example.product.exception.NotFoundException;
 import com.example.product.repository.ProductRepository;
 import com.example.product.service.ProductService;
 
@@ -25,39 +27,66 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<ProductDto> getAllProducts() {
 		List<Product> products = (List<Product>) productRepository.findAll();
+		if(products.isEmpty()) {
+			throw new NotFoundException("Products not found");	
+		}
 		return products.stream()
 						.map(p -> modelMapper.map(p, ProductDto.class))
 						.collect(Collectors.toList());
 	}
 
 	@Override
-	public List<ProductDto> getProductsByName(String productName) {
-		List<Product> products = productRepository.findByProductName(productName);
-		return products.stream()
-						.map(p -> modelMapper.map(p, ProductDto.class))
-						.collect(Collectors.toList());
+	public ProductDto getProductByName(String productName) {
+		Product product = productRepository.findByProductName(productName);
+		if(product != null) {
+			return modelMapper.map(product, ProductDto.class);
+		} else {
+			throw new NotFoundException("Product not found with name : "+productName);	
+		}
 	}
 
 	@Override
 	public ProductDto getProductById(Long productId) {
-		if(productRepository.findById(productId).isPresent()) {
-			Product product = productRepository.findById(productId).get();
+		Optional<Product> productOptional = productRepository.findById(productId);
+		if(productOptional.isPresent()) {
+			Product product = productOptional.get();
 			return modelMapper.map(product, ProductDto.class);
 		} else {
-			return null;	
+			throw new NotFoundException("Product not found with id : "+productId);	
 		}
 	}
 
 	@Override
 	public ProductDto createProduct(ProductDto productDto) {
-		
-		if(!getProductsByName(productDto.getProductName()).isEmpty()) {
-			throw new AlreadyExistException("product already exist");
+		if(productRepository.findByProductName(productDto.getProductName()) == null) {
+			Product productToBeSaved = modelMapper.map(productDto, Product.class);
+			Product savedProduct = productRepository.save(productToBeSaved);
+			return modelMapper.map(savedProduct, ProductDto.class);
+		} else {
+			throw new AlreadyExistException("Product already exist with name : "+productDto.getProductName());
 		}
-		
-		Product productToBeSaved = modelMapper.map(productDto, Product.class);
-		Product savedProduct = productRepository.save(productToBeSaved);
-		return modelMapper.map(savedProduct, ProductDto.class);
 	}
-	
+
+	@Override
+	public ProductDto updateProduct(ProductDto productDto) {
+		Product product = productRepository.findByProductName(productDto.getProductName());
+		if(product != null) {
+			Product productToBeSaved = modelMapper.map(productDto, Product.class);
+			productToBeSaved.setId(product.getId());
+			Product savedProduct = productRepository.save(productToBeSaved);
+			return modelMapper.map(savedProduct, ProductDto.class);			
+		} else {
+			throw new NotFoundException("Product not found with name : "+productDto.getProductName());
+		}
+	}
+
+	@Override
+	public void deleteProduct(String productName) {
+		Product product = productRepository.findByProductName(productName);
+		if(product != null) {
+			productRepository.deleteById(product.getId());
+		} else {
+			throw new NotFoundException("Product not found with name : "+productName);
+		}
+	}
 }
