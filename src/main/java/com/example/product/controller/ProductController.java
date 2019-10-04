@@ -1,5 +1,6 @@
 package com.example.product.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.product.common.CommonUtil;
+import com.example.product.dto.EventDto;
 import com.example.product.dto.ProductDto;
 import com.example.product.exception.ApplicationException;
+import com.example.product.feign.EventServiceClient;
 import com.example.product.service.ProductService;
 
 import io.swagger.annotations.Api;
@@ -30,12 +34,16 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 	
+	@Autowired
+	private CommonUtil commonUtil;
+	
 	@PostMapping
 	@ApiOperation(value = "Create Product", response = ResponseEntity.class)
 	public ResponseEntity<ProductDto> create(@ApiParam("Product information for a new product to be created.") 
 												@RequestBody ProductDto productDto) {
 		validate(productDto);
 		ProductDto savedProductDto = productService.createProduct(productDto);
+		commonUtil.publishEvent("New product create : ["+savedProductDto.toString()+"]", "INFO");
 		return new ResponseEntity<>(savedProductDto, HttpStatus.CREATED);
 	}
 

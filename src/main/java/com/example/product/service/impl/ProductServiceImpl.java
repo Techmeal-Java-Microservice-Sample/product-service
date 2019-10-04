@@ -12,6 +12,7 @@ import com.example.product.dto.ProductDto;
 import com.example.product.entity.Product;
 import com.example.product.exception.AlreadyExistException;
 import com.example.product.exception.NotFoundException;
+import com.example.product.feign.EventServiceClient;
 import com.example.product.repository.ProductRepository;
 import com.example.product.service.ProductService;
 
