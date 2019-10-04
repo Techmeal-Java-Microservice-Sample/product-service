@@ -30,13 +30,6 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 	
-	@GetMapping
-	@ApiOperation(value = "Get all products", response = ResponseEntity.class)
-	public ResponseEntity<List<ProductDto>> getAllProducts() {
-		List<ProductDto> productDtos = productService.getAllProducts();
-		return new ResponseEntity<>(productDtos, HttpStatus.OK);
-	}
-	
 	@PostMapping
 	@ApiOperation(value = "Create Product", response = ResponseEntity.class)
 	public ResponseEntity<ProductDto> create(@ApiParam("Product information for a new product to be created.") 
@@ -44,6 +37,33 @@ public class ProductController {
 		validate(productDto);
 		ProductDto savedProductDto = productService.createProduct(productDto);
 		return new ResponseEntity<>(savedProductDto, HttpStatus.CREATED);
+	}
+
+	@PutMapping
+	@ApiOperation(value = "Update product", response = ResponseEntity.class)
+	public ResponseEntity<ProductDto> updateProduct(@ApiParam("Product information for a product to be updated.")
+														@RequestBody ProductDto productDto) {
+		validate(productDto);
+		ProductDto updatedProductDto = productService.updateProduct(productDto);
+		return new ResponseEntity<>(updatedProductDto, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{productName}")
+	@ApiOperation(value = "Delete product", response = ResponseEntity.class)
+	public ResponseEntity<Object> deleteProduct(@ApiParam("Name of the product to be deleted. Cannot be empty.")
+													@PathVariable String productName) {
+		if(productName == null) {
+			throw new ApplicationException("product name should not be null");
+		}
+		productService.deleteProduct(productName);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@GetMapping
+	@ApiOperation(value = "Get all products", response = ResponseEntity.class)
+	public ResponseEntity<List<ProductDto>> getAllProducts() {
+		List<ProductDto> productDtos = productService.getAllProducts();
+		return new ResponseEntity<>(productDtos, HttpStatus.FOUND);
 	}
 
 	@GetMapping("/{productName}")
@@ -54,27 +74,7 @@ public class ProductController {
 			throw new ApplicationException("product name should not be null");
 		} 
 		ProductDto productDto = productService.getProductByName(productName);
-		return new ResponseEntity<>(productDto, HttpStatus.OK);
-	}
-	
-	@PutMapping
-	@ApiOperation(value = "Update product", response = ResponseEntity.class)
-	public ResponseEntity<ProductDto> updateProduct(@ApiParam("Product information for a product to be updated.")
-														@RequestBody ProductDto productDto) {
-		validate(productDto);
-		ProductDto updatedProductDto = productService.updateProduct(productDto);
-		return new ResponseEntity<>(updatedProductDto, HttpStatus.OK);
-	}
-	
-	@DeleteMapping("/{productName}")
-	@ApiOperation(value = "Delete product", response = ResponseEntity.class)
-	public ResponseEntity<Object> deleteProduct(@ApiParam("Name of the product to be deleted. Cannot be empty.")
-													@PathVariable String productName) {
-		if(productName == null) {
-			throw new ApplicationException("product name should not be null");
-		}
-		productService.deleteProduct(productName);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(productDto, HttpStatus.FOUND);
 	}
 	
 	private void validate(ProductDto productDto) {

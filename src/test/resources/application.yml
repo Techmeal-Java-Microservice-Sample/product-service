@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: product-service
+  profiles:
+    active:
+    - test
+    
+server:
+  port: 9071
+  servlet:
+    context-path: /product-service
+
+         
