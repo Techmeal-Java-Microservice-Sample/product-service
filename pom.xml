@@ -8,6 +8,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>product-service</name>
 	<description>Product Service</description>
+	<url>https://github.com/Techmeal-Java-Microservice-Sample</url>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -124,11 +125,6 @@
 				<artifactId>maven-surefire-report-plugin</artifactId>
 				<version>${maven-surefire-report-plugin.version}</version>
 			</plugin>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>${sonar-maven-plugin.version}</version>
-			</plugin>
 		</plugins>
 	</build>
 
@@ -178,7 +174,7 @@
 	</developers>
 
 	<scm>
-		<url>https://gitlab.scania.com/iotplatform/gateway-manager/gateway-management-system</url>
+		<url>https://github.com/Techmeal-Java-Microservice-Sample/product-service</url>
 	</scm>
 
 </project>
