@@ -18,6 +18,13 @@ Alternatively you can use the [Spring Boot Maven plugin](https://docs.spring.io/
 mvn spring-boot:run
 ```
 
+## Explore Swagger API:
+
+swagger.json: `http://127.0.0.1:9071/v2/api-docs`
+
+swagger-ui: `http://127.0.0.1:9071/product-service/swagger-ui.html`
+
+
 ## Running the junit tests locally
 
 To execute junit test and generate test report and coverage report use following maven command. 
