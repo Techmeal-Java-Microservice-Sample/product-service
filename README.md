@@ -20,7 +20,7 @@ mvn spring-boot:run
 
 ## Explore Swagger API:
 
-swagger.json: `http://127.0.0.1:9071/v2/api-docs`
+swagger.json: `http://127.0.0.1:9071/product-service/v2/api-docs`
 
 swagger-ui: `http://127.0.0.1:9071/product-service/swagger-ui.html`
 
