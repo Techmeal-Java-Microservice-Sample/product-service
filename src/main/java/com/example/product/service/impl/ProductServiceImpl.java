@@ -1,7 +1,6 @@
 package com.example.product.service.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -12,7 +11,6 @@ import com.example.product.dto.ProductDto;
 import com.example.product.entity.Product;
 import com.example.product.exception.AlreadyExistException;
 import com.example.product.exception.NotFoundException;
-import com.example.product.feign.EventServiceClient;
 import com.example.product.repository.ProductRepository;
 import com.example.product.service.ProductService;
 
@@ -43,17 +41,6 @@ public class ProductServiceImpl implements ProductService {
 			return modelMapper.map(product, ProductDto.class);
 		} else {
 			throw new NotFoundException("Product not found with name : "+productName);	
-		}
-	}
-
-	@Override
-	public ProductDto getProductById(Long productId) {
-		Optional<Product> productOptional = productRepository.findById(productId);
-		if(productOptional.isPresent()) {
-			Product product = productOptional.get();
-			return modelMapper.map(product, ProductDto.class);
-		} else {
-			throw new NotFoundException("Product not found with id : "+productId);	
 		}
 	}
 

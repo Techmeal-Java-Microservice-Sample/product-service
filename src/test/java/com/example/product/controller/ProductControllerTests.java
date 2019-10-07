@@ -3,7 +3,8 @@ package com.example.product.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,11 +16,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.example.product.common.CommonUtil;
 import com.example.product.dto.ProductDto;
 import com.example.product.exception.ApplicationException;
 import com.example.product.service.ProductService;
@@ -44,8 +46,11 @@ public class ProductControllerTests {
 	@Autowired
 	private ProductController productController;
 	
-	@SpyBean
+	@MockBean
 	private ProductService productService;
+	
+	@MockBean
+	private CommonUtil commonUtil;
 	
 	@Test
 	public void testCreateProductWhenProductInfoIsNullThenThrowException() {
@@ -144,7 +149,8 @@ public class ProductControllerTests {
 											.expiryDate(TEST_PRODUCT_EXPIRY_DATE)
 											.build();
 		//when
-		doReturn(productDto).when(productService).createProduct(productDto);
+		when(productService.createProduct(productDto)).thenReturn(productDto);
+		doNothing().when(commonUtil).publishEvent("New product create : ["+productDto.toString()+"]", "INFO");
 		
 		//then
 		ResponseEntity<ProductDto> response = productController.create(productDto);
@@ -152,6 +158,9 @@ public class ProductControllerTests {
 		assertNotNull(response.getBody());
 		assertEquals(HttpStatus.CREATED, response.getStatusCode());
 		assertEquals(productDto.getProductName(), response.getBody().getProductName());
+		
+		verify(productService).createProduct(productDto);
+		verify(commonUtil).publishEvent("New product create : ["+productDto.toString()+"]", "INFO");
 	}
 	
 	@Test
@@ -259,8 +268,7 @@ public class ProductControllerTests {
 											.build();
 		
 		//when
-		doReturn(productDto).when(productService).createProduct(productDto);
-		doReturn(updatedProductDto).when(productService).updateProduct(updatedProductDto);
+		when(productService.updateProduct(updatedProductDto)).thenReturn(updatedProductDto);
 		
 		//then
 		ResponseEntity<ProductDto> response = productController.updateProduct(updatedProductDto);
@@ -269,6 +277,8 @@ public class ProductControllerTests {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertEquals(updatedProductDto.getProductName(), response.getBody().getProductName());
 		assertEquals(TEST_PRODUCT_PRICE_UPDATE, response.getBody().getPrice());
+		
+		verify(productService).updateProduct(updatedProductDto);
 	}
 	
 	@Test
@@ -290,6 +300,8 @@ public class ProductControllerTests {
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		
+		verify(productService).deleteProduct(TEST_PRODUCT_NAME);
+		
 	}
 	
 	@Test
@@ -305,7 +317,7 @@ public class ProductControllerTests {
 		List<ProductDto> productDtos = new ArrayList<>();
 		productDtos.add(productDto);
 		//when
-		doReturn(productDtos).when(productService).getAllProducts();
+		when(productService.getAllProducts()).thenReturn(productDtos);
 		
 		//then
 		ResponseEntity<List<ProductDto>> response = productController.getAllProducts();
@@ -313,6 +325,7 @@ public class ProductControllerTests {
 		assertNotNull(response.getBody());
 		assertEquals(HttpStatus.FOUND, response.getStatusCode());
 		assertEquals(productDto.getProductName(), response.getBody().stream().findFirst().get().getProductName());
+		verify(productService).getAllProducts();
 	}
 	
 	@Test
@@ -329,10 +342,12 @@ public class ProductControllerTests {
 											.expiryDate(TEST_PRODUCT_EXPIRY_DATE)
 											.build();
 		//when
-		doReturn(productDto).when(productService).createProduct(productDto);
+		when(productService.createProduct(productDto)).thenReturn(productDto);
 		
 		//then
 		productController.getProductByName(null);
+		
+		verify(productService).createProduct(productDto);
 	}
 	
 	@Test
@@ -346,8 +361,7 @@ public class ProductControllerTests {
 											.expiryDate(TEST_PRODUCT_EXPIRY_DATE)
 											.build();
 		//when
-		doReturn(productDto).when(productService).createProduct(productDto);
-		doReturn(productDto).when(productService).getProductByName(TEST_PRODUCT_NAME);
+		when(productService.getProductByName(TEST_PRODUCT_NAME)).thenReturn(productDto);
 		
 		//then
 		ResponseEntity<ProductDto> response = productController.getProductByName(TEST_PRODUCT_NAME);
@@ -355,5 +369,7 @@ public class ProductControllerTests {
 		assertNotNull(response.getBody());
 		assertEquals(HttpStatus.FOUND, response.getStatusCode());
 		assertEquals(productDto.getProductName(), response.getBody().getProductName());
+		
+		verify(productService).getProductByName(TEST_PRODUCT_NAME);
 	}
 }
